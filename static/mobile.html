@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>FaceSync 手机推流采集端</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+    }
+    body {
+      background: #000;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* 全屏摄像头画面 */
+    #cameraViewport {
+      flex: 1;
+      position: relative;
+      background: #111;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    video#mobileVideo {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    /* 服务端实时换脸回传画中画 */
+    #swappedPipCanvas {
+      position: absolute;
+      bottom: 80px;
+      right: 16px;
+      width: 120px;
+      height: 160px;
+      border-radius: 12px;
+      border: 2px solid #00f2fe;
+      background: #000;
+      object-fit: cover;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.6);
+      z-index: 20;
+    }
+    /* 顶部悬浮状态栏 */
+    .top-status {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 30;
+      pointer-events: none;
+    }
+    .status-pill {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(8px);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ff3b30;
+    }
+    .dot.connected {
+      background: #00df89;
+      box-shadow: 0 0 8px #00df89;
+    }
+    /* 底部悬浮控制栏 */
+    .bottom-bar {
+      position: absolute;
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 30;
+    }
+    .ctrl-btn {
+      background: rgba(20, 28, 45, 0.85);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+    .ctrl-btn.active {
+      background: linear-gradient(135deg, #0088ff, #00f2fe);
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="cameraViewport">
+    <!-- 顶部状态信息 -->
+    <div class="top-status">
+      <div class="status-pill">
+        <div class="dot" id="wsDot"></div>
+        <span id="wsStatus">正在连接主机...</span>
+      </div>
+      <div class="status-pill">
+        <span>FPS: <strong id="mobileFps" style="color:#00f2fe">0.0</strong></span>
+      </div>
+    </div>
+
+    <!-- 手机本地摄像头采集预览 -->
+    <video id="mobileVideo" autoplay playsinline muted></video>
+
+    <!-- 服务端换脸后实时回传画中画 (画中画直观反馈) -->
+    <canvas id="swappedPipCanvas"></canvas>
+
+    <!-- 底部控制按钮 -->
+    <div class="bottom-bar">
+      <button class="ctrl-btn" id="btnFlipCamera" onclick="flipCamera()">
+        🔄 翻转镜头
+      </button>
+      <button class="ctrl-btn active" id="btnToggleStream" onclick="toggleStream()">
+        ⏹ 停止推流
+      </button>
+      <button class="ctrl-btn" id="btnTogglePip" onclick="togglePip()">
+        🖼 画中画
+      </button>
+    </div>
+  </div>
+
+  <script src="/static/js/mobile.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,16 @@
+fastapi>=0.110.0
+uvicorn>=0.28.0
+websockets>=12.0
+opencv-python>=4.8.0
+numpy>=1.24.0,<2.0.0
+pillow>=10.0.0
+imageio-ffmpeg>=0.4.9
+requests>=2.31.0
+tqdm>=4.66.0
+python-multipart>=0.0.9
+# 硬件加速推理引擎 (根据硬件自动选择或二选一安装)：
+# AMD/Intel显卡 或 无独立显卡首选: onnxruntime-directml
+# NVIDIA 显卡首选: onnxruntime-gpu
+# 纯CPU环境: onnxruntime
+onnxruntime>=1.17.0
+
